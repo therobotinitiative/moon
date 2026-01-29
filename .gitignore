@@ -18,4 +18,6 @@ bin/
 ### VS Code ###
 .vscode/
 
-!gradle/wrapper/gradle-wrapper.jar
+# Do not force-include the wrapper jar; ignore it (we track only the properties)
+gradle/wrapper/gradle-wrapper.jar
+**/gradle-wrapper.jar
