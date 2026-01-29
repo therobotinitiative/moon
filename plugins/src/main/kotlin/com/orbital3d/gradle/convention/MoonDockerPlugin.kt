@@ -31,16 +31,16 @@ abstract class MoonBuildTask @javax.inject.Inject constructor(
     abstract val contextDir: Property<String>
 
     @get:Input
-    //@get:Optional
+    @get:Optional
     abstract val uid: Property<String>
 
     @get:Input
-    //@get:Optional
+    @get:Optional
     abstract val gid: Property<String>
 
 
     @TaskAction
-    fun buildImage() {
+    fun buildDockerImage() {
         val name = imageName.get()
         val ver = imageVersion.get()
         val df = dockerfile.get()

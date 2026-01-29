@@ -31,11 +31,19 @@ abstract class CheckProperties : DefaultTask() {
 
 	@TaskAction
 	fun checkProperties() {
-		println("Port: ${port.get()}")
-		println("User: ${user.get()}")
-		println("Database: ${database.get()}")
-		println("Storage Path: ${storagePath.get()}")
-		println("Image name: ${imageName.get()}")
-		println("version: ${imageVersion.get()}")
+		val portProperty = port.get()
+		val userProperty = user.get()
+		val databaseProperty = database.get()
+		val imageNameProperty = imageName.get()
+		val imageVersionProperty = imageVersion.get()
+		val storagePathProperty = storagePath.get()
+
+		logger.lifecycle("Checking properties:")
+		logger.lifecycle("Port: ${portProperty}")
+		logger.lifecycle("User: ${userProperty}")
+		logger.lifecycle("Database: ${databaseProperty}")
+		logger.lifecycle("Storage Path: ${storagePathProperty}")
+		logger.lifecycle("Image name: ${imageNameProperty}")
+		logger.lifecycle("version: ${imageVersionProperty}")
 	}
 }
