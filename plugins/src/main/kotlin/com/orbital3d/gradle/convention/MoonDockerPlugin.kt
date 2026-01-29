@@ -96,7 +96,6 @@ class MoonDockerPlugin : Plugin<Project> {
 
         val provider: TaskProvider<MoonBuildTask> = project.tasks.register("moonbuild", MoonBuildTask::class.java)
         provider.configure { t ->
-            t.dependsOn("genrep")
             if (ext != null) {
                 t.imageName.set(ext.imageName)
                 t.imageVersion.set(ext.imageVersion)
