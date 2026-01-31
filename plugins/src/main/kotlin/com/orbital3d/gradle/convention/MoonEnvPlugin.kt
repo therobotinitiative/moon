@@ -260,13 +260,14 @@ class MoonEnvPlugin : Plugin<Project> {
                 t.dryRun.set(ext.dryRun)
             }
 
-            // Optionally wire into buildEnvironment if present and requested
-            project.afterEvaluate {
-                if (ext.integrateWithBuildEnvironment.getOrElse(false)) {
-                    val be = project.tasks.findByName("buildEnvironment")
-                    if (be != null) {
-                        be.dependsOn("createDockerNetwork", "ensureSystemUserAndGroup")
-                    }
+            // Optionally wire into buildEnvironment if present and requested (lazy configuration)
+            project.plugins.withType(org.gradle.api.plugins.HelpTasksPlugin::class.java) {
+                project.tasks.named("buildEnvironment").configure { be ->
+                    be.onlyIf { ext.integrateWithBuildEnvironment.getOrElse(false) }
+                    be.dependsOn(
+                        project.tasks.named("createDockerNetwork"),
+                        project.tasks.named("ensureSystemUserAndGroup")
+                    )
                 }
             }
         }
