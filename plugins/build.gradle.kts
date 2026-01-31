@@ -3,7 +3,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.file.DuplicatesStrategy
 
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "2.0.21"
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -58,5 +58,7 @@ publishing {
     }
 }
 tasks.withType(KotlinCompile::class.java).configureEach {
-    kotlinOptions.jvmTarget = "11"
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+    }
 }
