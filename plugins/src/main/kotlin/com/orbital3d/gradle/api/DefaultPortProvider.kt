@@ -1,5 +1,9 @@
 package com.orbital3d.gradle.api
 
+/**
+ * Default port number provider. This implementation can be overwriten in Moon Modules.
+ * Moon project name is associated with default port.
+ */
 class DefaultPortProvider : PortProvider {
     override fun defaultPort(projectName: String): Int {
         return when (projectName) {

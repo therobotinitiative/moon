@@ -57,15 +57,15 @@ abstract class CreateDockerNetworkTask @Inject constructor(private val execOpera
         }
 
         logger.lifecycle("Creating docker network: $name")
-        val createOut = ByteArrayOutputStream()
+        val createOutput = ByteArrayOutputStream()
         val created = execOperations.exec { spec ->
             spec.commandLine("docker", "network", "create", name)
             spec.isIgnoreExitValue = false
-            spec.standardOutput = createOut
-            spec.errorOutput = createOut
+            spec.standardOutput = createOutput
+            spec.errorOutput = createOutput
         }
         if (created.exitValue != 0) {
-            throw RuntimeException("Failed to create docker network '$name': ${createOut.toString()}")
+            throw RuntimeException("Failed to create docker network '$name': ${createOutput.toString()}")
         }
         logger.lifecycle("Docker network '$name' created")
     }
@@ -234,30 +234,30 @@ class MoonEnvPlugin : Plugin<Project> {
         val ext: MoonEnvExtension = project.extensions.create("moonEnv", MoonEnvExtension::class.java, project.objects)
 
         // Register subproject task (also applies to root so subprojects can use it)
-            project.tasks.register("prepareStoragePath", PrepareStoragePathTask::class.java) { t ->
-            t.setGroup("moon")
-            t.setDescription("Create storage path and set ownership/permissions as configured")
-            t.storagePath.convention(project.projectDir.resolve("build/moon-storage").absolutePath)
-            t.dryRun.set(ext.dryRun)
+        project.tasks.register("prepareStoragePath", PrepareStoragePathTask::class.java) { task ->
+            task.setGroup("moon")
+            task.setDescription("Create storage path and set ownership/permissions as configured")
+            task.storagePath.convention(project.projectDir.resolve("build/moon-storage").absolutePath)
+            task.dryRun.set(ext.dryRun)
         }
 
         // Root-only tasks
         if (project == project.rootProject) {
-            project.tasks.register("createDockerNetwork", CreateDockerNetworkTask::class.java) { t ->
-                t.setGroup("moon")
-                t.setDescription("Create docker network if it does not exist")
-                t.networkName.set(ext.networkName)
+            project.tasks.register("createDockerNetwork", CreateDockerNetworkTask::class.java) { task ->
+                task.setGroup("moon")
+                task.setDescription("Create docker network if it does not exist")
+                task.networkName.set(ext.networkName)
             }
 
-            project.tasks.register("ensureSystemUserAndGroup", EnsureHostUserGroupTask::class.java) { t ->
-                t.setGroup("moon")
-                t.setDescription("Ensure host system user and group for moon are present")
-                t.userName.set(ext.userName)
-                t.groupName.set(ext.groupName)
-                t.uid.set(ext.uid)
-                t.gid.set(ext.gid)
-                t.skipIfNoPrivs.set(ext.skipIfNoPrivs)
-                t.dryRun.set(ext.dryRun)
+            project.tasks.register("ensureSystemUserAndGroup", EnsureHostUserGroupTask::class.java) { task ->
+                task.setGroup("moon")
+                task.setDescription("Ensure host system user and group for moon are present")
+                task.userName.set(ext.userName)
+                task.groupName.set(ext.groupName)
+                task.uid.set(ext.uid)
+                task.gid.set(ext.gid)
+                task.skipIfNoPrivs.set(ext.skipIfNoPrivs)
+                task.dryRun.set(ext.dryRun)
             }
 
             // Optionally wire into buildEnvironment if present and requested (lazy configuration)

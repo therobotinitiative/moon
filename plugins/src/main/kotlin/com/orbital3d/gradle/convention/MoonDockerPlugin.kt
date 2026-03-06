@@ -38,7 +38,6 @@ abstract class MoonBuildTask @javax.inject.Inject constructor(
     @get:Optional
     abstract val gid: Property<String>
 
-
     @TaskAction
     fun buildDockerImage() {
         val name = imageName.get()

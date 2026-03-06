@@ -16,16 +16,16 @@ class MoonPlugin : Plugin<Project> {
         )
 
         // Load a subproject-local gradle.properties if present and apply to the extension as conventions.
-        val localProps = Properties()
-        val localFile = project.file("gradle.properties")
-        if (localFile.exists()) {
-            FileInputStream(localFile).use { localProps.load(it) }
+        val localProperties = Properties()
+        val localPropertyFile = project.file("gradle.properties")
+        if (localPropertyFile.exists()) {
+            FileInputStream(localPropertyFile).use { localProperties.load(it) }
         }
 
         fun firstProp(vararg keys: String): String? {
-            for (k in keys) {
-                val v = project.findProperty(k) ?: localProps.getProperty(k)
-                if (v != null) return v.toString()
+            for (key in keys) {
+                val value = project.findProperty(key) ?: localProperties.getProperty(key)
+                if (value != null) return value.toString()
             }
             return null
         }
@@ -33,25 +33,20 @@ class MoonPlugin : Plugin<Project> {
         // Note: UID/GID detection must not start external processes during configuration.
         // Leave uid/gid unset here and resolve them at task execution time instead.
 
-        // Ensure a root-level `moonDefaults` extension exists so the root project can supply a
-        // pluggable `PortProvider` instance. Subprojects may still override via their
-        // local `gradle.properties` (e.g. `${project.name}.port`) — that remains optional.
-        val rootDefaults = project.rootProject.extensions.findByName("moonDefaults") as? com.orbital3d.gradle.extension.MoonDefaultsExtension
-            ?: project.rootProject.extensions.create(
-                "moonDefaults",
-                com.orbital3d.gradle.extension.MoonDefaultsExtension::class.java
-            )
+        // Resolve default port from the built-in DefaultPortProvider.
+        // Projects can override via gradle.properties (e.g. `projectname.port=1234`).
+        val portProvider = com.orbital3d.gradle.api.DefaultPortProvider()
+        val defaultPort = portProvider.defaultPort(project.name)
 
-        val provider = rootDefaults.portProvider ?: com.orbital3d.gradle.api.DefaultPortProvider()
-        val defaultPort = provider.defaultPort(project.name)
-        if (defaultPort == -1) {
-            throw RuntimeException("Missing (project name).port property or no suitable com.orbital3d.gradle.api.DefaultPortProvider supplied")
+        val portProp = firstProp("${project.name}.port")?.toInt()
+        if (portProp != null) {
+            ext.port.convention(portProp)
+        } else if (defaultPort != -1) {
+            ext.port.convention(defaultPort)
         }
-
-        ext.port.convention(firstProp("${project.name}.port")?.toInt() ?: defaultPort)
         ext.user.convention(firstProp("${project.name}.user") ?: "${project.name}")
         ext.database.convention(firstProp("${project.name}.database") ?: project.name)
-        ext.storagePath.convention(firstProp("${project.name}.storage") ?: "/var/lib/${project.name}")
+        ext.storagePath.convention(firstProp("${project.name}.storage") ?: "/var/lib/forest/${project.name}")
         ext.imageName.convention(firstProp("${project.name}.image.name") ?: "${project.name}-moon")
         ext.imageVersion.convention(firstProp("${project.name}.image.version") ?: "1.0.0")
         val uidProp = firstProp("${project.name}.uid", "uid")
@@ -61,7 +56,7 @@ class MoonPlugin : Plugin<Project> {
 
         val checkPropertiesProvider = project.tasks.register("checkProperties", CheckProperties::class.java)
         checkPropertiesProvider.configure { t ->
-            t.port.set(ext.port.map { v: Int -> v.toString() })
+            t.port.set(ext.port.map { valu: Int -> valu.toString() })
             t.user.set(ext.user)
             t.database.set(ext.database)
             t.storagePath.set(ext.storagePath)

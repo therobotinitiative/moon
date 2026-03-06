@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.orbital3d.gradle"
-version = "0.1.0-local"
+version = "0.1.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
